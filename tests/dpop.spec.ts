@@ -254,4 +254,24 @@ describe("DPoP", () => {
       { nonce }
     ).catch((e) => expect(e).toBeDefined());
   });
+
+  it("should accept valid DPoP with nonce or access token", async () => {
+    const token = await signToken(
+      [
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+        },
+      ],
+      key
+    );
+    await verifyDPoP(token);
+  });
 });

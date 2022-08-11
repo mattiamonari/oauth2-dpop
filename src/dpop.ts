@@ -4,9 +4,10 @@ import crypto from "crypto";
 import { parseJWT } from "./jwt";
 import { DPoPError, JWTError } from "./errors";
 
+// Header field is a well-formed jwt
+// See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-4.3
 async function verifyHeader(header: Record<string, unknown>): Promise<JWK.Key> {
-  // See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-4.2
-  // typ claim must be dpop+jwt
+  // the typ JOSE header parameter has the value dpop+jwt
   if (!("typ" in header) || header.typ !== "dpop+jwt") {
     throw new DPoPError("malformed token");
   }
@@ -66,6 +67,8 @@ function verifyPayload(
   }
 
   if (accessToken !== undefined) {
+    // if presented to a protected resource in conjunction with an access token,
+    // ensure that the value of the ath claim equals the hash of that access token
     const ath = jose.util.base64url.encode(
       crypto.createHash("sha256").update(accessToken, "ascii").digest()
     );
@@ -74,17 +77,27 @@ function verifyPayload(
     }
   }
   if (nonce !== undefined) {
+    // if the server provided a nonce value to the client, the nonce claim matches the server-provided nonce value
     if (payload.nonce !== nonce) {
       throw new DPoPError("malformed token");
     }
   }
 }
 
+export interface DPoPPayload {
+  jti: string;
+  htm: string;
+  htu: string;
+  iat: string;
+  ath?: string;
+  nonce?: string;
+}
+
 export async function verifyDPoP(
   token: unknown,
   options: VerifyPayloadOptions = {}
 ) {
-  const [rawHeader, rawPayload] = parseJWT(token);
+  const [rawHeader, encodedPayload] = parseJWT(token);
 
   let header: Record<string, unknown>;
   try {
@@ -95,15 +108,18 @@ export async function verifyDPoP(
     throw new JWTError("malformed token");
   }
 
-  const key = await verifyHeader(header);
-
+  const rawPayload = jose.util.base64url.decode(encodedPayload);
   let payload: Record<string, unknown>;
   try {
-    payload = JSON.parse(
-      jose.util.base64url.decode(rawPayload).toString("utf-8")
-    );
+    payload = JSON.parse(rawPayload.toString("ascii"));
   } catch {
     throw new JWTError("malformed token");
   }
   verifyPayload(payload, options);
+
+  // the JWT signature verifies with the public key contained in the jwk JOSE header parameter
+  // key is dervied from jwk claim
+  const key = await verifyHeader(header);
+  const jws = await jose.JWS.createVerify(key).verify(token as string);
+  return { header: jws.header, payload, key };
 }
