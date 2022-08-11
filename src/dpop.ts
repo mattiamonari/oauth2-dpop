@@ -42,7 +42,15 @@ async function verifyHeader(header: Record<string, unknown>): Promise<JWK.Key> {
 
   return key;
 }
-function verifyPayload(payload: Record<string, unknown>, accessToken?: string) {
+
+export type VerifyPayloadOptions = Partial<{
+  accessToken: string;
+  nonce: string;
+}>;
+function verifyPayload(
+  payload: Record<string, unknown>,
+  { accessToken }: VerifyPayloadOptions
+) {
   // See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-4.2
   if (!("jti" in payload) || typeof payload.jti !== "string") {
     throw new DPoPError("malformed token");
@@ -67,7 +75,10 @@ function verifyPayload(payload: Record<string, unknown>, accessToken?: string) {
   }
 }
 
-export async function verifyDPoP(token: unknown, accessToken?: string) {
+export async function verifyDPoP(
+  token: unknown,
+  options: VerifyPayloadOptions = {}
+) {
   const [rawHeader, rawPayload] = parseJWT(token);
 
   let header: Record<string, unknown>;
@@ -89,5 +100,5 @@ export async function verifyDPoP(token: unknown, accessToken?: string) {
   } catch {
     throw new JWTError("malformed token");
   }
-  verifyPayload(payload, accessToken);
+  verifyPayload(payload, options);
 }

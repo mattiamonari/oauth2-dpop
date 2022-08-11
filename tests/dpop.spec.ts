@@ -231,7 +231,7 @@ describe("DPoP", () => {
         ],
         key
       ),
-      accessToken
+      { accessToken }
     ).catch((e) => expect(e).toBeDefined());
   });
 });
