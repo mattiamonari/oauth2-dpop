@@ -19,19 +19,15 @@ export async function signToken(
   ],
   key: JWK.Key
 ): Promise<string> {
-  const result = (await JWS.createSign(
+  const result = await JWS.createSign(
     {
       alg: "ES256",
-      format: "flattened",
+      format: "compact",
       fields: { kid: undefined, ...header },
     },
     key
   )
     .update(JSON.stringify(payload))
-    .final()) as unknown as {
-    signature: string;
-    protected: string;
-    payload: string;
-  };
-  return [result.protected, result.payload, result.signature].join(".");
+    .final();
+  return result as unknown as string;
 }
