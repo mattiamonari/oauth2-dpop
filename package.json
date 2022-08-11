@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP) server-side implementation for Node.js",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc"
