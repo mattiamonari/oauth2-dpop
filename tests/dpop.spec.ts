@@ -235,8 +235,8 @@ describe("DPoP", () => {
     ).catch((e) => expect(e).toBeDefined());
   });
 
+  const nonce = "VjxUogncJy1C3u3CANMRQ";
   it("should reject DPoPs without nonce claim when nonce is provided", async () => {
-    const nonce = "VjxUogncJy1C3u3CANMRQ";
     expect.assertions(1);
     await verifyDPoP(
       await signToken(
@@ -255,7 +255,7 @@ describe("DPoP", () => {
     ).catch((e) => expect(e).toBeDefined());
   });
 
-  it("should accept valid DPoP with nonce or access token", async () => {
+  it("should accept valid DPoP without nonce or access token", async () => {
     const token = await signToken(
       [
         {
@@ -273,5 +273,26 @@ describe("DPoP", () => {
       key
     );
     await verifyDPoP(token);
+  });
+
+  it("should accept valid DPoP with nonce", async () => {
+    const token = await signToken(
+      [
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+          nonce,
+        },
+      ],
+      key
+    );
+    await verifyDPoP(token, { nonce });
   });
 });
