@@ -7,3 +7,7 @@
 OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP) server implementation for Node.js
 
 Based on [`draft-ietf-oauth-dpop-11`](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11).
+
+## Usage
+
+Please take a look at example in `example/` directory.
