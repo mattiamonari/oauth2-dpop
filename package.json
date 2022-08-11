@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zolbooo/oauth-dpop.git"
+    "url": "git+https://github.com/zolbooo/oauth2-dpop.git"
   },
   "keywords": [
     "security",
@@ -21,9 +21,9 @@
   "author": "Zolboobayar Gantumur <zolboobayar@metainc.mn>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zolbooo/oauth-dpop/issues"
+    "url": "https://github.com/zolbooo/oauth2-dpop/issues"
   },
-  "homepage": "https://github.com/zolbooo/oauth-dpop#readme",
+  "homepage": "https://github.com/zolbooo/oauth2-dpop#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
