@@ -1,33 +1,44 @@
+import { JWK } from "node-jose";
 import { verifyDPoP } from "../src/dpop";
 
-import { createToken } from "./utils";
+import { createToken, signToken } from "./utils";
 
 describe("DPoP", () => {
   const exampleJWK = {
     kty: "EC",
-    x: "l8tFrhx-34tV3hRICRDY9zCkDlpBhF42UQUfWVAWBFs",
-    y: "9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA",
+    kid: "Bc0ay4wdstLn9jxjdvyzr_utUBPe2FmXQTWKixFQasg",
     crv: "P-256",
+    x: "27CyOVJdhMTreDzuuVHzl6byreauJxXgDZAT2-jz3V4",
+    y: "QEowVVoPhwXD6X1R-8eNdYY7tceyzbul64bqrhMLE3k",
   };
+  let key: JWK.Key;
+  beforeAll(async () => {
+    key = await JWK.asKey({
+      ...exampleJWK,
+      d: "PAlOU0tVx4vlOmwtFMheTOln2a1oZy_q29d3uNM5NYk",
+    });
+  });
 
   it("should reject DPoPs with invalid type", async () => {
     expect.assertions(1);
     verifyDPoP(
       // Token with "typ" header claim: "$pop+jwt"
-      createToken([
-        {
-          typ: "$pop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          jti: "-BwC3ESc6acc2lTc",
-          htm: "POST",
-          htu: "https://server.example.com/token",
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "$pop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htm: "POST",
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
   });
 
@@ -90,105 +101,117 @@ describe("DPoP", () => {
   it("should verify jti claim", async () => {
     expect.assertions(2);
     await verifyDPoP(
-      createToken([
-        {
-          typ: "dpop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          htm: "POST",
-          htu: "https://server.example.com/token",
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "dpop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            htm: "POST",
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
     await verifyDPoP(
-      createToken([
-        {
-          typ: "dpop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          jti: null,
-          htm: "POST",
-          htu: "https://server.example.com/token",
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "dpop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            jti: null,
+            htm: "POST",
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
   });
 
   it("should reject DPoPs with invalid htm claim", async () => {
     expect.assertions(2);
     await verifyDPoP(
-      createToken([
-        {
-          typ: "dpop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          jti: "-BwC3ESc6acc2lTc",
-          htu: "https://server.example.com/token",
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "dpop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
     await verifyDPoP(
-      createToken([
-        {
-          typ: "dpop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          jti: "-BwC3ESc6acc2lTc",
-          htm: null,
-          htu: "https://server.example.com/token",
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "dpop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htm: null,
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
   });
 
   it("should reject DPoPs with invalid htu claim", async () => {
     expect.assertions(2);
     await verifyDPoP(
-      createToken([
-        {
-          typ: "dpop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          jti: "-BwC3ESc6acc2lTc",
-          htm: "POST",
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "dpop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htm: "POST",
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
     await verifyDPoP(
-      createToken([
-        {
-          typ: "dpop+jwt",
-          alg: "ES256",
-          jwk: exampleJWK,
-        },
-        {
-          jti: "-BwC3ESc6acc2lTc",
-          htm: "POST",
-          htu: null,
-          iat: 1562262616,
-        },
-        Buffer.alloc(0),
-      ])
+      await signToken(
+        [
+          {
+            typ: "dpop+jwt",
+            alg: "ES256",
+            jwk: exampleJWK,
+          },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htm: "POST",
+            htu: null,
+            iat: 1562262616,
+          },
+        ],
+        key
+      )
     ).catch((e) => expect(e).toBeDefined());
   });
 });
