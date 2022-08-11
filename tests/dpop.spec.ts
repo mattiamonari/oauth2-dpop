@@ -86,4 +86,39 @@ describe("DPoP", () => {
       ])
     ).catch((e) => expect(e).toBeDefined());
   });
+
+  it("should verify jti claim", async () => {
+    expect.assertions(2);
+    await verifyDPoP(
+      createToken([
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+        },
+        Buffer.alloc(0),
+      ])
+    ).catch((e) => expect(e).toBeDefined());
+    await verifyDPoP(
+      createToken([
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: null,
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+        },
+        Buffer.alloc(0),
+      ])
+    ).catch((e) => expect(e).toBeDefined());
+  });
 });

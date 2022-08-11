@@ -41,9 +41,15 @@ async function verifyHeader(header: Record<string, unknown>): Promise<JWK.Key> {
 
   return key;
 }
+function verifyPayload(payload: Record<string, unknown>) {
+  // See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-4.2
+  if (!("jti" in payload) || typeof payload.jti !== "string") {
+    throw new DPoPError("malformed token");
+  }
+}
 
 export async function verifyDPoP(token: unknown) {
-  const [rawHeader] = parseJWT(token);
+  const [rawHeader, rawPayload] = parseJWT(token);
 
   let header: Record<string, unknown>;
   try {
@@ -55,4 +61,14 @@ export async function verifyDPoP(token: unknown) {
   }
 
   const key = await verifyHeader(header);
+
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(
+      jose.util.base64url.decode(rawPayload).toString("utf-8")
+    );
+  } catch {
+    throw new JWTError("malformed token");
+  }
+  verifyPayload(payload);
 }
