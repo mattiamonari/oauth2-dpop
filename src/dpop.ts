@@ -121,5 +121,5 @@ export async function verifyDPoP(
   // key is dervied from jwk claim
   const key = await verifyHeader(header);
   const jws = await jose.JWS.createVerify(key).verify(token as string);
-  return { header: jws.header, payload, key };
+  return { header: jws.header, payload, key, kid: key.kid };
 }
