@@ -156,4 +156,39 @@ describe("DPoP", () => {
       ])
     ).catch((e) => expect(e).toBeDefined());
   });
+
+  it("should reject DPoPs with invalid htu claim", async () => {
+    expect.assertions(2);
+    await verifyDPoP(
+      createToken([
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          iat: 1562262616,
+        },
+        Buffer.alloc(0),
+      ])
+    ).catch((e) => expect(e).toBeDefined());
+    await verifyDPoP(
+      createToken([
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: null,
+          iat: 1562262616,
+        },
+        Buffer.alloc(0),
+      ])
+    ).catch((e) => expect(e).toBeDefined());
+  });
 });
