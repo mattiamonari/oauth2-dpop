@@ -6,6 +6,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
+    "lint": "eslint src",
     "build": "tsc"
   },
   "repository": {
