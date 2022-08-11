@@ -130,5 +130,10 @@ export async function verifyDPoP(
   }
 
   const jws = await jose.JWS.createVerify(key).verify(token as string);
-  return { header: jws.header, payload, key, kid: key.kid };
+  return {
+    key,
+    header: jws.header,
+    payload: payload as unknown as DPoPPayload,
+    kid: key.kid,
+  };
 }
