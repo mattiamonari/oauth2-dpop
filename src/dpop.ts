@@ -46,6 +46,9 @@ function verifyPayload(payload: Record<string, unknown>) {
   if (!("jti" in payload) || typeof payload.jti !== "string") {
     throw new DPoPError("malformed token");
   }
+  if (!("htm" in payload) || typeof payload.htm !== "string") {
+    throw new DPoPError("malformed token");
+  }
 }
 
 export async function verifyDPoP(token: unknown) {
