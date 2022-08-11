@@ -47,6 +47,8 @@ async function verifyHeader(header: Record<string, unknown>): Promise<JWK.Key> {
 export type VerifyPayloadOptions = Partial<{
   accessToken: string;
   nonce: string;
+  // See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-6.1
+  jkt: string;
 }>;
 function verifyPayload(
   payload: Record<string, unknown>,
@@ -120,6 +122,13 @@ export async function verifyDPoP(
   // the JWT signature verifies with the public key contained in the jwk JOSE header parameter
   // key is dervied from jwk claim
   const key = await verifyHeader(header);
+  if (options.jkt) {
+    const thumbprint = jose.util.base64url.encode(await key.thumbprint());
+    if (thumbprint !== options.jkt) {
+      throw new JWTError("malformed token");
+    }
+  }
+
   const jws = await jose.JWS.createVerify(key).verify(token as string);
   return { header: jws.header, payload, key, kid: key.kid };
 }

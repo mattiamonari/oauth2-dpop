@@ -342,4 +342,31 @@ describe("DPoP", () => {
     );
     await verifyDPoP(token, { nonce, accessToken });
   });
+
+  it("should reject DPoP with invalid thumbprint", async () => {
+    const token = await signToken(
+      [
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+          ath: accessTokenHash,
+          nonce,
+        },
+      ],
+      key
+    );
+    expect.assertions(1);
+    await verifyDPoP(token, {
+      nonce,
+      accessToken,
+      jkt: "qjrzSW9gMiUgaUvqgEPE4_-8swvyCtfOVvg53o5S_es",
+    }).catch((e) => expect(e).toBeDefined());
+  });
 });
