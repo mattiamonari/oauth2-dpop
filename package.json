@@ -1,0 +1,25 @@
+{
+  "name": "oauth2-dpop",
+  "version": "1.0.0",
+  "description": "OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP) server-side implementation for Node.js",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zolbooo/oauth-dpop.git"
+  },
+  "keywords": [
+    "security",
+    "oauth2",
+    "oauth2-server",
+    "dpop"
+  ],
+  "author": "Zolboobayar Gantumur <zolboobayar@metainc.mn>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zolbooo/oauth-dpop/issues"
+  },
+  "homepage": "https://github.com/zolbooo/oauth-dpop#readme"
+}
