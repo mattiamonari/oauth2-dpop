@@ -3,7 +3,7 @@ import jose from "node-jose";
 import { parseJWT } from "./jwt";
 import { DPoPError, JWTError } from "./errors";
 
-export function verifyDPoP(token: unknown) {
+export async function verifyDPoP(token: unknown) {
   const [header] = parseJWT(token);
 
   let parsedHeader: Record<string, unknown>;
