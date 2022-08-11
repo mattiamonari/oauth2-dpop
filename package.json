@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/zolbooo/oauth-dpop/issues"
   },
-  "homepage": "https://github.com/zolbooo/oauth-dpop#readme"
+  "homepage": "https://github.com/zolbooo/oauth-dpop#readme",
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  }
 }
