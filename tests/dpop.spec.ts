@@ -234,4 +234,24 @@ describe("DPoP", () => {
       { accessToken }
     ).catch((e) => expect(e).toBeDefined());
   });
+
+  it("should reject DPoPs without nonce claim when nonce is provided", async () => {
+    const nonce = "VjxUogncJy1C3u3CANMRQ";
+    expect.assertions(1);
+    await verifyDPoP(
+      await signToken(
+        [
+          { typ: "dpop+jwt", jwk: exampleJWK },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htm: "POST",
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      ),
+      { nonce }
+    ).catch((e) => expect(e).toBeDefined());
+  });
 });

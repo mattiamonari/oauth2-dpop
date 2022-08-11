@@ -49,7 +49,7 @@ export type VerifyPayloadOptions = Partial<{
 }>;
 function verifyPayload(
   payload: Record<string, unknown>,
-  { accessToken }: VerifyPayloadOptions
+  { accessToken, nonce }: VerifyPayloadOptions
 ) {
   // See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-4.2
   if (!("jti" in payload) || typeof payload.jti !== "string") {
@@ -70,6 +70,11 @@ function verifyPayload(
       crypto.createHash("sha256").update(accessToken, "ascii").digest()
     );
     if (payload.ath !== ath) {
+      throw new DPoPError("malformed token");
+    }
+  }
+  if (nonce !== undefined) {
+    if (payload.nonce !== nonce) {
       throw new DPoPError("malformed token");
     }
   }
