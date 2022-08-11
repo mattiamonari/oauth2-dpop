@@ -214,4 +214,24 @@ describe("DPoP", () => {
       )
     ).catch((e) => expect(e).toBeDefined());
   });
+
+  it("should reject DPoPs without ath claim when access token is provided", async () => {
+    const accessToken = "93e7JcAYXn6fEVZcm-nb9";
+    expect.assertions(1);
+    await verifyDPoP(
+      await signToken(
+        [
+          { typ: "dpop+jwt", jwk: exampleJWK },
+          {
+            jti: "-BwC3ESc6acc2lTc",
+            htm: "POST",
+            htu: "https://server.example.com/token",
+            iat: 1562262616,
+          },
+        ],
+        key
+      ),
+      accessToken
+    ).catch((e) => expect(e).toBeDefined());
+  });
 });

@@ -1,4 +1,5 @@
 import jose, { JWK } from "node-jose";
+import crypto from "crypto";
 
 import { parseJWT } from "./jwt";
 import { DPoPError, JWTError } from "./errors";
@@ -41,7 +42,7 @@ async function verifyHeader(header: Record<string, unknown>): Promise<JWK.Key> {
 
   return key;
 }
-function verifyPayload(payload: Record<string, unknown>) {
+function verifyPayload(payload: Record<string, unknown>, accessToken?: string) {
   // See: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-11#section-4.2
   if (!("jti" in payload) || typeof payload.jti !== "string") {
     throw new DPoPError("malformed token");
@@ -52,9 +53,21 @@ function verifyPayload(payload: Record<string, unknown>) {
   if (!("htu" in payload) || typeof payload.htu !== "string") {
     throw new DPoPError("malformed token");
   }
+  if (!("iat" in payload) || typeof payload.iat !== "number") {
+    throw new DPoPError("malformed token");
+  }
+
+  if (accessToken !== undefined) {
+    const ath = jose.util.base64url.encode(
+      crypto.createHash("sha256").update(accessToken, "ascii").digest()
+    );
+    if (payload.ath !== ath) {
+      throw new DPoPError("malformed token");
+    }
+  }
 }
 
-export async function verifyDPoP(token: unknown) {
+export async function verifyDPoP(token: unknown, accessToken?: string) {
   const [rawHeader, rawPayload] = parseJWT(token);
 
   let header: Record<string, unknown>;
@@ -76,5 +89,5 @@ export async function verifyDPoP(token: unknown) {
   } catch {
     throw new JWTError("malformed token");
   }
-  verifyPayload(payload);
+  verifyPayload(payload, accessToken);
 }
