@@ -1,4 +1,4 @@
-import jose from "node-jose";
+import jose, { JWK } from "node-jose";
 
 import { parseJWT } from "./jwt";
 import { DPoPError, JWTError } from "./errors";
@@ -29,6 +29,24 @@ export async function verifyDPoP(token: unknown) {
     parsedHeader.alg.startsWith("HS") ||
     parsedHeader.alg === "none"
   ) {
+    throw new DPoPError("malformed token");
+  }
+  // jwk representing the public key chosen by the client, in JSON Web Key (JWK)
+  // RFC7517 format, as defined in Section 4.1.3 of RFC7515.
+  // MUST NOT contain a private key.
+  if (
+    !("jwk" in parsedHeader) ||
+    typeof parsedHeader.jwk !== "object" ||
+    parsedHeader.jwk === null
+  ) {
+    throw new DPoPError("malformed token");
+  }
+  const { jwk } = parsedHeader;
+
+  let key;
+  try {
+    key = await jose.JWK.asKey(jwk, "json");
+  } catch (e) {
     throw new DPoPError("malformed token");
   }
 }

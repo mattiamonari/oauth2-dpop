@@ -66,4 +66,24 @@ describe("DPoP", () => {
       ])
     ).catch((e) => expect(e).toBeDefined());
   });
+
+  it("should verify JWK format", async () => {
+    expect.assertions(1);
+    await verifyDPoP(
+      createToken([
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: {},
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+        },
+        Buffer.alloc(0),
+      ])
+    ).catch((e) => expect(e).toBeDefined());
+  });
 });
