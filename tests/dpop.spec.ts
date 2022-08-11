@@ -1,6 +1,7 @@
-import { JWK } from "node-jose";
-import { verifyDPoP } from "../src/dpop";
+import jose, { JWK } from "node-jose";
+import crypto from "crypto";
 
+import { verifyDPoP } from "../src/dpop";
 import { createToken, signToken } from "./utils";
 
 describe("DPoP", () => {
@@ -215,8 +216,11 @@ describe("DPoP", () => {
     ).catch((e) => expect(e).toBeDefined());
   });
 
+  const accessToken = "93e7JcAYXn6fEVZcm-nb9";
+  const accessTokenHash = jose.util.base64url.encode(
+    crypto.createHash("sha256").update(accessToken).digest()
+  );
   it("should reject DPoPs without ath claim when access token is provided", async () => {
-    const accessToken = "93e7JcAYXn6fEVZcm-nb9";
     expect.assertions(1);
     await verifyDPoP(
       await signToken(
@@ -294,5 +298,26 @@ describe("DPoP", () => {
       key
     );
     await verifyDPoP(token, { nonce });
+  });
+
+  it("should accept valid DPoP with access token", async () => {
+    const token = await signToken(
+      [
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+          ath: accessTokenHash,
+        },
+      ],
+      key
+    );
+    await verifyDPoP(token, { accessToken });
   });
 });
