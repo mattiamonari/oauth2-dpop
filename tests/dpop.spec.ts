@@ -320,4 +320,26 @@ describe("DPoP", () => {
     );
     await verifyDPoP(token, { accessToken });
   });
+
+  it("should accept valid DPoP with access token and noce", async () => {
+    const token = await signToken(
+      [
+        {
+          typ: "dpop+jwt",
+          alg: "ES256",
+          jwk: exampleJWK,
+        },
+        {
+          jti: "-BwC3ESc6acc2lTc",
+          htm: "POST",
+          htu: "https://server.example.com/token",
+          iat: 1562262616,
+          ath: accessTokenHash,
+          nonce,
+        },
+      ],
+      key
+    );
+    await verifyDPoP(token, { nonce, accessToken });
+  });
 });
